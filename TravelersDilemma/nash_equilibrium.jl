@@ -1,5 +1,6 @@
 include("properties.jl")
 
+
 # Algorithm 24.5. This nonlinear program computes a Nash equilibrium for a simple game 𝒫.
 struct NashEquilibrium end
 
@@ -29,5 +30,6 @@ function solve(M::NashEquilibrium, 𝒫::SimpleGame)
     πi′(i) = SimpleGamePolicy(𝒫.𝒜[i][ai] => value(π[i, ai]) for ai in 𝒜[i])
     return [πi′(i) for i in ℐ]
 end
+
 
 π = solve(NashEquilibrium(), travelersDilemma)

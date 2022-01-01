@@ -1,3 +1,6 @@
+include("utils.jl")
+
+
 # Algorithm 24.1. Data structure for a simple game.
 struct SimpleGame
     γ # discount factor
