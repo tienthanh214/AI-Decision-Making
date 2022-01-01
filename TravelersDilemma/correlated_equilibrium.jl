@@ -15,14 +15,16 @@ function (π::JointCorrelatedPolicy)()
 end
 
 
-# Algorithm 24.7
+# Algorithm 24.7 (Utilitarian) [Fixed bug by me]
 struct CorrelatedEquilibrium end
+
+joint(a, ai′, i) = Tuple(k == i ? ai′ : v for (k, v) in enumerate(a))
 
 function solve(M::CorrelatedEquilibrium, 𝒫::SimpleGame)
     ℐ, 𝒜, R = 𝒫.ℐ, 𝒫.𝒜, 𝒫.R
     model = Model(Ipopt.Optimizer)
     @variable(model, π[joint(𝒜)] ≥ 0)
-    @objective(model, Max, sum(sum(π[a] * R(a) for a in joint(𝒜))))
+    @objective(model, Max, sum(sum(π[a] * R(a)[i] for a in joint(𝒜)) for i in ℐ))
     @constraint(model, [i = ℐ, ai = 𝒜[i], ai′ = 𝒜[i]],
         sum(R(a)[i] * π[a] for a in joint(𝒜) if a[i] == ai)
         ≥

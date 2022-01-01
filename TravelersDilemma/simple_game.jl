@@ -36,7 +36,7 @@ end
 
 joint(X) = vec(collect(Iterators.product(X...)))
 
-joint(π, πi, i) = [i == j ? πi : πj for (j, πj) in enumerate(π)]
+# joint(π, πi, i) = [i == j ? πi : πj for (j, πj) in enumerate(π)] # helper of best_response
 
 function utility(𝒫::SimpleGame, π, i)
     𝒜, R = 𝒫.𝒜, 𝒫.R
