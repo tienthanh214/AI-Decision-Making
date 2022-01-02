@@ -36,10 +36,18 @@ end
 
 joint(X) = vec(collect(Iterators.product(X...)))
 
-# joint(π, πi, i) = [i == j ? πi : πj for (j, πj) in enumerate(π)] # helper of best_response
+joint(π, πi, i) = [i == j ? πi : πj for (j, πj) in enumerate(π)] # helper of best_response
 
 function utility(𝒫::SimpleGame, π, i)
     𝒜, R = 𝒫.𝒜, 𝒫.R
     p(a) = prod(πj(aj) for (πj, aj) in zip(π, a))
     return sum(R(a)[i] * p(a) for a in joint(𝒜))
+end
+
+
+# Algorithm 24.3
+function best_response(𝒫::SimpleGame, π, i)
+    U(ai) = utility(𝒫, joint(π, SimpleGamePolicy(ai), i), i)
+    ai = argmax(U, 𝒫.𝒜[i])
+    return SimpleGamePolicy(ai)
 end

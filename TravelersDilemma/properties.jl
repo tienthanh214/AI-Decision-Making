@@ -4,14 +4,9 @@ include("simple_game.jl")
 const N_AGENTS = 2
 const ACTIONS = vec(collect(2:100))
 
-function joint_reward(a::Tuple{Int64, Int64})
+function joint_reward(a::Tuple{Int64,Int64})
     ai, aj = a
-    if ai == aj
-        return (ai, ai)
-    elseif ai < aj
-        return (ai + 2, ai - 2)
-    end
-    return (aj - 2, aj + 2)
+    return ai == aj ? (ai, aj) : (ai < aj ? (ai + 2, ai - 2) : (aj - 2, aj + 2))
 end
 
 travelersDilemma = SimpleGame(
