@@ -33,3 +33,10 @@ end
 
 
 π = solve(NashEquilibrium(), travelersDilemma)
+
+π¹ = π[1].p
+π² = π[2].p
+
+for a in ACTIONS
+    println(a => (π¹[a], π²[a]))
+end

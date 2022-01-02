@@ -1,4 +1,4 @@
-include("utils.jl")
+include("resource.jl")
 
 
 # Algorithm 24.1. Data structure for a simple game.

@@ -2,7 +2,7 @@ include("simple_game.jl")
 
 
 const N_AGENTS = 2
-const ACTIONS = vec(collect(2:100))
+const ACTIONS = vec(collect(2:20))
 
 function joint_reward(a::Tuple{Int64,Int64})
     ai, aj = a

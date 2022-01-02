@@ -37,14 +37,14 @@ end
 
 π = solve(CorrelatedEquilibrium(), travelersDilemma)
 
-π₁ = Dict(a => 0.0 for a in travelersDilemma.𝒜[1])
-π₂ = Dict(a => 0.0 for a in travelersDilemma.𝒜[2])
+π¹ = Dict(a => 0.0 for a in travelersDilemma.𝒜[1])
+π² = Dict(a => 0.0 for a in travelersDilemma.𝒜[2])
 
 for (k, v) in π.p
-    π₁[k[1]] += v
-    π₂[k[2]] += v
+    π¹[k[1]] += v
+    π²[k[2]] += v
 end
 
 for i in travelersDilemma.𝒜[1]
-    println(i => (π₁[i], π₂[i]))
+    println(i => (π¹[i], π²[i]))
 end

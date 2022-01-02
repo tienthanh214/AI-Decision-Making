@@ -46,3 +46,19 @@ end
     travelersDilemma,
     [FictitiousPlay(travelersDilemma, i) for i in travelersDilemma.ℐ],
     10)
+
+for k_max in [100, 1000, 10000, 100000]
+    π = simulate(
+        travelersDilemma,
+        [FictitiousPlay(travelersDilemma, i) for i in travelersDilemma.ℐ],
+        k_max)
+
+    println("After ", k_max, " iterations, the (deterministic) policy:")
+    
+    π¹ = π[1].πi
+    π² = π[2].πi
+    
+    println("π¹ = ", π¹)
+    println("π² = ", π²)
+    println()
+end
