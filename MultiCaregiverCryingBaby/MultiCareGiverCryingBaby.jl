@@ -61,10 +61,13 @@ struct NashEquilibrium end
 
 struct SimpleGamePolicy
     p # dictionary mapping actions to probabilities
+    
+    # Returns a random policy
     function SimpleGamePolicy(p::Base.Generator)
         return SimpleGamePolicy(Dict(p))
     end
 
+    # Return policy from dict
     function SimpleGamePolicy(p::Dict)
         vs = collect(values(p))
         vs ./= sum(vs)
@@ -180,18 +183,21 @@ function joint_reward(s, a)
 end
 
 # -------------- EVALUATIONG CONDITIONAL PLANS --------------
+#  The lookahead function below is used to calculate the evaluate plan
 function lookahead(𝒫::POMG, U, s, a)
     𝒮, 𝒪, T, O, R, γ = 𝒫.𝒮, joint(𝒫.𝒪), 𝒫.T, 𝒫.O, 𝒫.R, 𝒫.γ
     u′ = sum(T(s,a,s′)*sum(O(a,s′,o)*U(o,s′) for o in 𝒪) for s′ in 𝒮)
     return R(s,a) + γ*u′
 end
 
+#  The lookahead function below is used to calculate the utility
 function evaluate_plan(𝒫::POMG, π, s)
     a = Tuple(πi() for πi in π)
     U(o,s′) = evaluate_plan(𝒫, [πi(oi) for (πi, oi) in zip(π,o)], s′)
     return isempty(first(π).subplans) ? 𝒫.R(s,a) : lookahead(𝒫, U, s, a)
 end
 
+# used to calculate utility with initial belief b when executing joint policy in POMG 𝒫
 function utility(𝒫::POMG, b, π)
     u = [evaluate_plan(𝒫, π, s) for s in 𝒫.𝒮]
     return sum(bs * us for (bs, us) in zip(b, u))
@@ -208,6 +214,7 @@ end
 joint(X) = vec(collect(Iterators.product(X...)))
 joint(π, πi, i) = [i == j ? πi : πj for (j, πj) in enumerate(π)]
 
+# Returns the format tensor of 𝒫
 function tensorform(𝒫::SimpleGame)
     ℐ, 𝒜, R = 𝒫.ℐ, 𝒫.𝒜, 𝒫.R
     ℐ′ = eachindex(ℐ)
@@ -216,23 +223,30 @@ function tensorform(𝒫::SimpleGame)
     return ℐ′, 𝒜′, R′
 end
 
+# Find the Nash Equilibrium
 function solve(M::NashEquilibrium, 𝒫::SimpleGame)
     ℐ, 𝒜, R = tensorform(𝒫)
     model = Model(Ipopt.Optimizer)
+    #  declaration
     @variable(model, U[ℐ])
+    # constraint 3
     @variable(model, π[i=ℐ, 𝒜[i]] ≥ 0)
+    # objective function
     @NLobjective(model, Min,
         sum(U[i] - sum(prod(π[j,a[j]] for j in ℐ) * R[y][i]
             for (y,a) in enumerate(joint(𝒜))) for i in ℐ))
+    # constraint 1
     @NLconstraint(model, [i=ℐ, ai=𝒜[i]],
         U[i] ≥ sum(
             prod(j==i ? (a[j]==ai ? 1.0 : 0.0) : π[j,a[j]] for j in ℐ)
             * R[y][i] for (y,a) in enumerate(joint(𝒜))))
+    # constrain 2
     @constraint(model, [i=ℐ], sum(π[i,ai] for ai in 𝒜[i]) == 1)
+    # Model optimization
     optimize!(model)
     πi′(i) = SimpleGamePolicy(𝒫.𝒜[i][ai] => value(π[i,ai]) for ai in 𝒜[i])
     return [πi′(i) for i in ℐ]
-end
+end 
 
 # ------------ DYNAMIC PROGRAMING -------------
 struct POMGDynamicProgramming
@@ -240,6 +254,7 @@ struct POMGDynamicProgramming
     d # depth of conditional plans
 end
 
+# Dynamic programming computes a Nash equilibrium π for a POMG 𝒫, given an initial belief b and horizon depth d. 
 function solve(M::POMGDynamicProgramming, 𝒫::POMG)
     ℐ, 𝒮, 𝒜, R, γ, b, d = 𝒫.ℐ, 𝒫.𝒮, 𝒫.𝒜, 𝒫.R, 𝒫.γ, M.b, M.d
     Π = [[ConditionalPlan(ai) for ai in 𝒜[i]] for i in ℐ]
@@ -252,6 +267,7 @@ function solve(M::POMGDynamicProgramming, 𝒫::POMG)
     return Tuple(argmax(πi.p) for πi in π)
 end
 
+# use to cut branch
 function prune_dominated!(Π, 𝒫::POMG)
     done = false
     while !done
@@ -268,6 +284,7 @@ function prune_dominated!(Π, 𝒫::POMG)
     end
 end
 
+# used to determine which branch is dominated by another branch
 function is_dominated(𝒫::POMG, Π, i, πi)
     ℐ, 𝒮 = 𝒫.ℐ, 𝒫.𝒮
     jointΠnoti = joint([Π[j] for j in ℐ if j ≠ i])
@@ -286,8 +303,6 @@ function is_dominated(𝒫::POMG, Π, i, πi)
     return value(δ) ≥ 0
 end
 
-# ------------ PRINT RESULT --------------------
-# io = open("output.txt", "w")
 multicare = POMG(0.9, 
                 [1, 2], 
                 ["HUNGRY", "SATED"], 
@@ -302,5 +317,3 @@ b = [0.5, 0.5];
 dyP = POMGDynamicProgramming(b, 1);
 result = solve(dyP, multicare);
 print(result)
-# write(io, result)
-# close(io)
