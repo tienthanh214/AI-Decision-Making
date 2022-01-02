@@ -1,11 +1,11 @@
 import Pkg
 import_packages = ["Distributions", "LinearAlgebra"]
 
-# for pkg in import_packages
-#     if !haskey(Pkg.installed(), pkg)
-#         Pkg.add(pkg)
-#     end
-# end
+for pkg in import_packages
+    if !haskey(Pkg.installed(), pkg)
+        Pkg.add(pkg)
+    end
+end
 
 using Distributions, LinearAlgebra
 
