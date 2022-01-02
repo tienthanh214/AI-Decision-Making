@@ -1,10 +1,3 @@
-
-******************************************************************************
-This program contains Ipopt, a library for large-scale nonlinear optimization.
- Ipopt is released as open source code under the Eclipse Public License (EPL).
-         For more information visit https://github.com/coin-or/Ipopt
-******************************************************************************
-
 This is Ipopt version 3.14.4, running with linear solver MUMPS 5.4.1.
 
 Number of nonzeros in equality constraint Jacobian...:        6
@@ -47,6 +40,6 @@ Number of inequality constraint evaluations          = 6
 Number of equality constraint Jacobian evaluations   = 6
 Number of inequality constraint Jacobian evaluations = 6
 Number of Lagrangian Hessian evaluations             = 5
-Total seconds in IPOPT                               = 4.210
+Total seconds in IPOPT                               = 0.009
 
 EXIT: Optimal Solution Found.
