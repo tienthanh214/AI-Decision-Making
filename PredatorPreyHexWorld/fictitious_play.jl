@@ -19,18 +19,16 @@ include("markov_game.jl")
 
 # -------------- SIMULATE FOR LEARNING ------------------
 function randstep(𝒫::MG, s, a)
+    # Create a randomized step base on action 
     s′ = rand(SetCategorical(𝒫.𝒮, [𝒫.T(s, a, s′) for s′ in 𝒫.𝒮]))
     r = 𝒫.R(s,a)
     return s′, r
 end
 
 function simulate!(𝒫::MG, π, start_state, k_max; k_reset = 0)
-    # print("Start state: ", start_state, '\n')
+    # Simulate for learning-based algorithms
     s = start_state
     for k = 1:k_max
-        # if k % 100 == 0
-        #     print(k, '/', k_max, '\n')
-        # end
         a = Tuple(πi(s)() for πi in π)
         s′, r = randstep(𝒫, s, a)
         for i in collect(1:length(π))
@@ -46,6 +44,7 @@ end
 
 # -------------- FICTITIOUS PLAY ------------------
 mutable struct MGFictitiousPlay
+    # Definition for Fictitious Play
     𝒫 # Markov game
     i # agent index
     Qi # state-action value estimates
@@ -53,6 +52,7 @@ mutable struct MGFictitiousPlay
 end
 
 function MGFictitiousPlay(𝒫::MG, i)
+    # Construct FP for agent i
     ℐ, 𝒮, 𝒜, R = 𝒫.ℐ, 𝒫.𝒮, 𝒫.𝒜, 𝒫.R
     Qi = Dict((s, a) => R(s, a)[i] for s in 𝒮 for a in joint(𝒜))
     Ni = Dict((j, s, aj) => 1.0 for j in ℐ for s in 𝒮 for aj in 𝒜[j])
@@ -60,6 +60,7 @@ function MGFictitiousPlay(𝒫::MG, i)
 end
 
 function (πi::MGFictitiousPlay)(s)
+    # Return a SimpleGamePolicy for state s, based on uitility
     𝒫, i, Qi = πi.𝒫, πi.i, πi.Qi
     ℐ, 𝒮, 𝒜, T, R, γ = 𝒫.ℐ, 𝒫.𝒮, 𝒫.𝒜, 𝒫.T, 𝒫.R, 𝒫.γ
     πi′(i,s) = SimpleGamePolicy(ai => πi.Ni[i,s,ai] for ai in 𝒜[i])
@@ -73,6 +74,7 @@ function (πi::MGFictitiousPlay)(s)
 end
 
 function update!(πi::MGFictitiousPlay, s, a, s′)
+    # Update Fictitious Play based on simulated actions
     𝒫, i, Qi = πi.𝒫, πi.i, πi.Qi
     ℐ, 𝒮, 𝒜, T, R, γ = 𝒫.ℐ, 𝒫.𝒮, 𝒫.𝒜, 𝒫.T, 𝒫.R, 𝒫.γ
     for (j,aj) in enumerate(a)
@@ -90,14 +92,12 @@ end
 
 # -------------- FICTITIOUS PLAY SIMULATING ------------------
 function MGFPtoMGPolicy(𝒫::MG, πi::MGFictitiousPlay)
+    # Translate from MGFictitiousPlay to MGPolicy
     return MGPolicy(s => πi(s) for s in 𝒫.𝒮)
 end
 
-function my_trans(π)
-    return [MGFPtoMGPolicy(𝒫, πi) for πi in π]
-end
-
 function fictitious_play(pphw::DecisionMakingProblems.PredatorPreyHexWorldMG, k_max)
+    # Concurrent simluating for Fititiious Play algorithm
     𝒫 = MG(pphw)
     π = [MGFictitiousPlay(𝒫, i) for i in 𝒫.ℐ]
     for i in collect(1:k_max)
@@ -114,6 +114,7 @@ function fictitious_play(pphw::DecisionMakingProblems.PredatorPreyHexWorldMG, k_
     return π
 end
 
+# -------------- LEARNING ---------------------
 pphw = PredatorPreyHexWorld()
 𝒫 = MG(pphw)
 π = fictitious_play(pphw, 30)

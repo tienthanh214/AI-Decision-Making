@@ -1,3 +1,4 @@
+# Create SetCategorical for convenience usecase
 import Pkg
 import_packages = ["Distributions", "LinearAlgebra"]
 

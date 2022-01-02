@@ -1,5 +1,6 @@
 include("simple_game.jl")
 
+# Define markove game policy
 struct MGPolicy
     p # dictionary mapping states to simple game policies
     MGPolicy(p::Base.Generator) = new(Dict(p))
@@ -14,6 +15,7 @@ reward(𝒫::MG, s, π, i) =
 transition(𝒫::MG, s, π, s′) =
     sum(𝒫.T(s,a,s′)*probability(𝒫,s,π,a) for a in joint(𝒫.𝒜))
 
+# Policy evaluation
 function policy_evaluation(𝒫::MG, π, i)
     𝒮, 𝒜, R, T, γ = 𝒫.𝒮, 𝒫.𝒜, 𝒫.R, 𝒫.T, 𝒫.γ
     p(s,a) = prod(πj(s, aj) for (πj, aj) in zip(π, a))

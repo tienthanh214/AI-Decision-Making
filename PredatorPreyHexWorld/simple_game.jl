@@ -7,6 +7,7 @@ end
 import Base.Iterators: product
 using DecisionMakingProblems
 
+# Define simple game policy
 struct SimpleGamePolicy
     p # dictionary mapping actions to probabilities
     
@@ -33,6 +34,8 @@ end
 joint(X) = vec(collect(product(X...)))
 joint(π, πi, i) = [i == j ? πi : πj for (j, πj) in enumerate(π)]
 
+
+# Calculate utility based on policy for agent i
 function utility(𝒫::SimpleGame, π, i)
     𝒜, R = 𝒫.𝒜, 𝒫.R
     p(a) = prod(πj(aj) for (πj, aj) in zip(π, a))
