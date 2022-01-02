@@ -1,3 +1,5 @@
+# main algorithm for Predator-Prey Hex World problem
+
 # -------------- IMPORT PACKAGE AND INCLUDE ------------------
 import Pkg
 
