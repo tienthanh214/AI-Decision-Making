@@ -24,4 +24,4 @@ Gradient Ascent
 
 Nash Equilibrium
 ## Multi-Caregiver Crying Baby
-Partially Observable Markove Game - Dynamic Programming
+Partially Observable Markov Game - Dynamic Programming
